@@ -3,19 +3,12 @@
 #define _LJW_TREELIB_BASIC_TREE_H_
 
 #include "chdrs/result.h"
-#include "fsalloc.h"
-
-typedef enum {
-    left, right, equal
-}order;
+#include "chdrs/fn.h"
+#include "aLocas/include/fsalloc.h"
 
 typedef enum {
     pre, in, post
 }torder; // trav order
-
-typedef void (*CopyFn) (void* /* dest */, void* /* src */); // copy content from arg 2 to arg 1
-typedef order (*CmpFn) (void* /* data in node */, void* /* data out of node */); // if data out of node less than data in node, return left, otherwise return right 
-typedef void (*VisFn) (void* /* data in node */);
 
 typedef struct {
     void* l; // left

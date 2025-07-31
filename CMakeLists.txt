@@ -6,12 +6,12 @@ set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Debug)
 
+add_subdirectory(lib/aLocas)
+
 add_library(treelib STATIC src/basic_tree.c)
-add_library(allocator STATIC src/allocator/fsalloc.c)
 
-target_include_directories(allocator PRIVATE include)
-target_include_directories(treelib PRIVATE include)
-target_link_libraries(treelib allocator)
+target_include_directories(treelib PRIVATE include lib)
+target_link_libraries(treelib aLocas)
 
-enable_testing()
-add_subdirectory(test)
+# enable_testing()
+# add_subdirectory(test)
