@@ -1,0 +1,8 @@
+#ifndef _LJW_TREELIB_EC_H_
+#define _LJW_TREELIB_EC_H_
+#define TREELIBBSTARGV 1
+#define TREELIBBSTEMPTY 2
+#define TREELIBBSTICMP 3
+#define TREELIBBSTDNF 4
+#define TREELIBBSTDUP 5
+#endif

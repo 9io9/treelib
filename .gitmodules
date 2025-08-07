@@ -4,3 +4,6 @@
 [submodule "lib/aLocas"]
 	path = lib/aLocas
 	url = git@github.com:9io9/aLocas.git
+[submodule "tools/pec"]
+	path = tools/pec
+	url = git@github.com:9io9/pec.git

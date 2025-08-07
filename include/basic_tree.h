@@ -5,15 +5,16 @@
 #include "chdrs/result.h"
 #include "chdrs/fn.h"
 #include "aLocas/include/fsalloc.h"
+#include "ec.h"
 
 typedef enum {
     pre, in, post
 }torder; // trav order
 
-typedef struct {
-    void* l; // left
-    void* r; // right
-    void* p; // parent
+typedef struct Node {
+    struct Node* l; // left
+    struct Node* r; // right
+    struct Node* p; // parent
     char d[]; // data
 }Node;
 
@@ -22,11 +23,12 @@ typedef struct {
     Node* root;
     CopyFn fcopy;
     CmpFn fcmp;
+    SwapFn fswap;
     FsAllocator allocator;
 }BasicTree;
 
-Error basic_tree_init(BasicTree* bt, int dsize, CopyFn fcopy, CmpFn fcmp);
-Error basic_tree_ainit(BasicTree* bt, int chunk_size, int pmin, int pmax, CopyFn fcopy, CmpFn fcmp);
+Error basic_tree_init(BasicTree* bt, int dsize, CopyFn fcopy, CmpFn fcmp, SwapFn fswap);
+Error basic_tree_ainit(BasicTree* bt, int chunk_size, int pmin, int pmax, CopyFn fcopy, CmpFn fcmp, SwapFn fswap);
 Error basic_tree_put(BasicTree* bt, void* src);
 Error basic_tree_get(BasicTree* bt, void* dest);
 Error basic_tree_min(BasicTree* bt, void* data);
