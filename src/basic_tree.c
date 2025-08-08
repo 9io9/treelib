@@ -51,6 +51,81 @@ static Result nfind(Node* root, CmpFn fcmp, void* data) {
     return RESULT_FAIL("no data found in the tree", ECODE(TREELIB, BST, DNF));
 }
 
+static void pre_trav(Node* root, VisFn fvisit) {
+    if (root == NULL) {
+        return;
+    }
+
+    Node* nd = root;
+
+    while (true) {
+        fvisit(nd->d);
+
+        if (nd->l == NULL) {
+            pre_trav(nd->r, fvisit);
+            
+            while (nd != root) {
+                nd = nd->p;
+                pre_trav(nd->r, fvisit);
+            }
+
+            return;
+        }
+
+        nd = nd->l;
+    }
+}
+
+static void in_trav(Node* root, VisFn fvisit) {
+    if (root == NULL) {
+        return;
+    }
+
+    Node* nd = root;
+
+    while (true) {
+        if (nd->l == NULL) {
+            fvisit(nd->d);
+            in_trav(nd->r, fvisit);
+            
+            while (nd != root) {
+                nd = nd->p;
+                fvisit(nd->d);
+                in_trav(nd->r, fvisit);
+            }
+
+            return;
+        }
+
+        nd = nd->l;
+    }
+}
+
+static void post_trav(Node* root, VisFn fvisit) {
+    if (root == NULL) {
+        return;
+    }
+
+    Node* nd = root;
+
+    while (true) {
+        if (nd->l == NULL) {
+            post_trav(nd->r, fvisit);
+            fvisit(nd->d);
+
+            while (nd != root) {
+                nd = nd->p;
+                post_trav(nd->r, fvisit);
+                fvisit(nd->d);
+            }
+
+            return;
+        }
+
+        nd = nd->l;
+    }
+}
+
 Error basic_tree_init(BasicTree* bt, int dsize, CopyFn fcopy, CmpFn fcmp, SwapFn fswap) {
     if (bt == NULL || fcopy == NULL || fcmp == NULL || fswap == NULL) {
         return ERROR("bt == NULL or fcopy == NULL or fcmp == NULL or fswap == NULL", ECODE(TREELIB, BST, ARGV));
@@ -352,7 +427,32 @@ Error basic_tree_new(BasicTree* bt, void* ndata) {
     }
 }
 
-Error basic_tree_trav(BasicTree* bt, torder o, VisFn fvisit);
+Error basic_tree_trav(BasicTree* bt, torder o, VisFn fvisit) {
+    if (bt == NULL || fvisit == NULL) {
+        return ERROR("bt == NULL or fvisit == NULL", ECODE(TREELIB, BST, ARGV));
+    }
+
+    switch (o) {
+        case pre: {
+            pre_trav(bt->root, fvisit);
+            break;
+        }
+
+        case in: {
+            in_trav(bt->root, fvisit);
+            break;
+        }
+
+        case post: {
+            post_trav(bt->root, fvisit);
+            break;
+        }
+
+        default: return ERROR("invalid traverse order", ECODE(TREELIB, BST, ITOD));
+    }
+
+    return ERROR(NULL, 0);
+}
 
 Error basic_tree_destroy(BasicTree* bt) {
     if (bt == NULL) {

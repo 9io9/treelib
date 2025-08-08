@@ -15,7 +15,7 @@ add_custom_command(
 
 add_custom_target(treegech DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/ec.h)
 
-add_library(treelib STATIC src/basic_tree.c)
+add_library(treelib STATIC src/basic_tree.c src/rb_tree.c)
 add_dependencies(treelib treegech)
 
 target_include_directories(treelib PRIVATE include lib)
@@ -23,5 +23,5 @@ target_link_libraries(treelib aLocas)
 
 add_subdirectory(lib/aLocas)
 
-# enable_testing()
-# add_subdirectory(test)
+enable_testing()
+add_subdirectory(test)
