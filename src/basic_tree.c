@@ -190,6 +190,28 @@ Error basic_tree_put(BasicTree* bt, void* src) {
     return n.result.error;
 }
 
+Error basic_tree_repl(BasicTree* bt, void* dest, void* src) {
+    if (bt == NULL || src == NULL || dest == NULL) {
+        return ERROR("bt == NULL or src == NULL or dest == NULL", ECODE(TREELIB, BST, ARGV));
+    }
+
+    if (bt->ncnt == 0) {
+        return ERROR("root node is NULL, tree is empty", ECODE(TREELIB, BST, EMPTY));
+    }
+
+    Result n = nfind(bt->root, bt->fcmp, dest);
+
+    if (n.has_value) {
+        Node* nd = n.result.data.to_ptr;
+
+        bt->fcopy(nd->d, src);
+
+        return ERROR(NULL, 0);
+    }
+
+    return n.result.error;
+}
+
 Error basic_tree_get(BasicTree* bt, void* dest) {
     if (bt == NULL || dest == NULL) {
         return ERROR("bt == NULL or dest == NULL", ECODE(TREELIB, BST, ARGV));

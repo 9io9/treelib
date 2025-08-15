@@ -17,6 +17,8 @@ TREELIB {
     }
     BT {
         ARGV, # function argument value
-        OBD # out of bound
+        OBD, # out of bound
+        DNF, # data not found
+        DUP # duplicate node
     }
 }

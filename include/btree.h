@@ -8,12 +8,16 @@
 
 typedef struct BNode {
     int nsize;
+    int pindex;
+    struct BNode* p;
     char ds[];
 }BNode;
 
 typedef struct {
     int ncnt;
     int ncap;
+    int dsize;
+    BNode* root;
     CopyFn fcopy;
     CmpFn fcmp;
     SwapFn fswap;
@@ -24,8 +28,10 @@ Error btree_init(BTree* bt, int dsize, int ncap, CopyFn fcopy, CmpFn fcmp, SwapF
 Error btree_ainit(BTree* bt, int chunk_size, int pmin, int pmax, int ncap, CopyFn fcopy, CmpFn fcmp, SwapFn fswap);
 Error btree_get(BTree* bt, void* dest);
 Error btree_put(BTree* bt, void* src);
+Error btree_repl(BTree* bt, void* dest, void* src);
 Error btree_new(BTree* bt, void* ndata);
 Error btree_del(BTree* bt, void* data);
+Error btree_btrav(BTree* bt, VisFn fvisit);
 Error btree_destroy(BTree* bt);
 
 #endif

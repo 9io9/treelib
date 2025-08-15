@@ -18,6 +18,7 @@ Error rb_tree_ainit(BasicTree* rbt, int chunk_size, int pmin, int pmax, CopyFn f
 Error rb_tree_new(BasicTree* rbt, void* ndata);
 Error rb_tree_del(BasicTree* rbt, void* data);
 Error rb_tree_put(BasicTree* rbt, void* src);
+Error rb_tree_repl(BasicTree* rbt, void* dest, void* src);
 Error rb_tree_get(BasicTree* rbt, void* dest);
 Error rb_tree_min(BasicTree* rbt, void* data);
 Error rb_tree_max(BasicTree* rbt, void* data);

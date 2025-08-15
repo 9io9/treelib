@@ -448,6 +448,28 @@ Error rb_tree_del(BasicTree* rbt, void* data) {
     return n.result.error;
 }
 
+Error rb_tree_repl(BasicTree* rbt, void* dest, void* src) {
+    if (rbt == NULL || src == NULL || dest == NULL) {
+        return ERROR("bt == NULL or src == NULL or dest == NULL", ECODE(TREELIB, RBT, ARGV));
+    }
+
+    if (rbt->ncnt == 0) {
+        return ERROR("root node is NULL, tree is empty", ECODE(TREELIB, RBT, EMPTY));
+    }
+
+    Result n = nfind(rbt->root, rbt->fcmp, dest);
+
+    if (n.has_value) {
+        Node* nd = n.result.data.to_ptr;
+
+        rbt->fcopy(ndat(nd), src);
+
+        return ERROR(NULL, 0);
+    }
+
+    return n.result.error;
+}
+
 Error rb_tree_put(BasicTree* rbt, void* src) {
     if (rbt == NULL || src == NULL) {
         return ERROR("bt == NULL or src == NULL", ECODE(TREELIB, RBT, ARGV));

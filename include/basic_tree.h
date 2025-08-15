@@ -30,6 +30,7 @@ typedef struct {
 Error basic_tree_init(BasicTree* bt, int dsize, CopyFn fcopy, CmpFn fcmp, SwapFn fswap);
 Error basic_tree_ainit(BasicTree* bt, int chunk_size, int pmin, int pmax, CopyFn fcopy, CmpFn fcmp, SwapFn fswap);
 Error basic_tree_put(BasicTree* bt, void* src);
+Error basic_tree_repl(BasicTree* bt, void* dest, void* src);
 Error basic_tree_get(BasicTree* bt, void* dest);
 Error basic_tree_min(BasicTree* bt, void* data);
 Error basic_tree_max(BasicTree* bt, void* data);
