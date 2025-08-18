@@ -15,7 +15,7 @@ add_custom_command(
 
 add_custom_target(treegech DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/ec.h)
 
-add_library(treelib STATIC src/basic_tree.c src/rb_tree.c src/btree.c)
+add_library(treelib SHARED src/basic_tree.c src/rb_tree.c src/btree.c src/trie.c)
 add_dependencies(treelib treegech)
 
 find_package(cmth REQUIRED HINTS "${CMAKE_SOURCE_DIR}/lib/cmth/lib/cmake/cmth")
@@ -23,7 +23,8 @@ find_package(aLocas REQUIRED HINTS "${CMAKE_SOURCE_DIR}/lib/aLocas/lib/cmake/aLo
 find_package(seqlib REQUIRED HINTS "${CMAKE_SOURCE_DIR}/lib/seqlib/lib/cmake/seqlib")
 
 target_include_directories(treelib PRIVATE include lib)
-target_link_libraries(treelib aLocas::aLocas seqlib::seqlib cmth::cmth)
+target_link_options(treelib PRIVATE "-Wl,--exclude-libs,ALL")
+target_link_libraries(treelib aLocas::aLocas cmth::cmth seqlib::seqlib)
 
 # Library
 set_target_properties(treelib PROPERTIES EXPORT_NAME treelib)
@@ -56,6 +57,7 @@ install(
     NAMESPACE treelib::
     DESTINATION lib/cmake/treelib
 )
+
 
 enable_testing()
 add_subdirectory(test)

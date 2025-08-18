@@ -21,4 +21,9 @@ TREELIB {
         DNF, # data not found
         DUP # duplicate node
     }
+    TRIE {
+        ARGV, # function argument value
+        DNF, # data not found
+        EMPTY # tree is empty
+    }
 }
