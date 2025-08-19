@@ -1,6 +1,7 @@
 add_executable(bst basic_tree.c)
 add_executable(rbt rb_tree.c)
 add_executable(bt btree.c)
+add_executable(trie trie.c)
 
 target_include_directories(bst PRIVATE ../include ../lib)
 target_link_libraries(bst treelib)
@@ -8,6 +9,8 @@ target_include_directories(rbt PRIVATE ../include ../lib)
 target_link_libraries(rbt treelib)
 target_include_directories(bt PRIVATE ../include ../lib)
 target_link_libraries(bt treelib)
+target_include_directories(trie PRIVATE ../include ../lib)
+target_link_libraries(trie treelib)
 
 add_test(NAME basic_tree COMMAND bst 88 11 33 46 79 23 55 1 2 5 10 80 83 92 66 77)
 add_test(NAME rb_tree COMMAND rbt 88 11 33 46 79 23 55 1 2 5 10 80 83 92 66 77)
@@ -17,3 +20,4 @@ add_test(NAME btree02 COMMAND bt 4 88 11 92 66 77 99 33 46 79 23 1 2 5 10 80 83 
 add_test(NAME btree03 COMMAND bt 5 88 11 33 46 79 23 55 1 2 5 10 80 83 92 66 77 99 100 21 17 43) 
 add_test(NAME btree04 COMMAND bt 5 88 11 33 46 79 23 55 100 21 17 43 1 2 5 10 80 83 92 66 77 99) 
 add_test(NAME btree05 COMMAND bt 5 88 1 2 5 10 11 33 46 79 23 55 80 77 99 100 21 83 92 66 17 43)
+add_test(NAME trie COMMAND trie a.c 10 b.c 20 e.c 30 n.c 40 f.c 50 abt.c 60)

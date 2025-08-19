@@ -1,26 +1,47 @@
 #include <string.h>
 #include "trie.h"
 
-Error trie_init(Trie* trie, int dsize, CopyFn fcopy) {
-    if (trie == NULL || fcopy == NULL) {
-        return ERROR("trie == NULL or fcopy == NULL", ECODE(TREELIB, TRIE, ARGV));
+static Result nfind(Trie* trie, const char* s, void* v) {
+    TrieNode* n = trie->root;
+    TrieNode* np = n;
+
+    while (s[0] != '\0' && n != NULL) {
+        if (n->c == s[0]) {
+            np = n;
+            n = n->eq;
+        } else if (n->c > s[0]) {
+            np = n;
+            n = n->ls;
+        } else {
+            np = n;
+            n = n->gt;
+        }
+
+        ++s;
     }
 
-    trie->fcopy = fcopy;
-    trie->root = NULL;
-    
-    return fsalloc_init(&trie->allocator, sizeof(TrieNode) + dsize, 1, -1);
-}
-
-Error trie_ainit(Trie* trie, int chunk_size, int pmin, int pmax, CopyFn fcopy) {
-    if (trie == NULL || fcopy == NULL) {
-        return ERROR("trie == NULL or fcopy == NULL", ECODE(TREELIB, TRIE, ARGV));
+    if (s[0] != '\0') {
+        if (n == NULL) {
+            return RESULT_FAIL("data not found for trie", ECODE(TREELIB, TRIE, DNF)); 
+        } 
+    } else {
+        if (n == NULL) {
+            if (np->is_term) {
+                trie->fcopy(v, np->d);
+                n = np;
+            } else {
+                return RESULT_FAIL("data not found for trie", ECODE(TREELIB, TRIE, DNF)); 
+            }
+        } else {
+            if (n->is_term) {
+                trie->fcopy(v, n->d);
+            } else {
+                return RESULT_FAIL("data not found for trie", ECODE(TREELIB, TRIE, DNF)); 
+            }
+        }
     }
 
-    trie->fcopy = fcopy;
-    trie->root = NULL;
-    
-    return fsalloc_init(&trie->allocator, sizeof(TrieNode) + chunk_size, pmin, pmax);
+    return RESULT_SUC(ptr, n);
 }
 
 static Error svput(const char* s, TrieNode* n, void* v, CopyFn fcopy, FsAllocator* allocator) {
@@ -49,6 +70,28 @@ static Error svput(const char* s, TrieNode* n, void* v, CopyFn fcopy, FsAllocato
     }
 }
 
+Error trie_init(Trie* trie, int dsize, CopyFn fcopy) {
+    if (trie == NULL || fcopy == NULL) {
+        return ERROR("trie == NULL or fcopy == NULL", ECODE(TREELIB, TRIE, ARGV));
+    }
+
+    trie->fcopy = fcopy;
+    trie->root = NULL;
+    
+    return fsalloc_init(&trie->allocator, sizeof(TrieNode) + dsize, 1, -1);
+}
+
+Error trie_ainit(Trie* trie, int chunk_size, int pmin, int pmax, CopyFn fcopy) {
+    if (trie == NULL || fcopy == NULL) {
+        return ERROR("trie == NULL or fcopy == NULL", ECODE(TREELIB, TRIE, ARGV));
+    }
+
+    trie->fcopy = fcopy;
+    trie->root = NULL;
+    
+    return fsalloc_init(&trie->allocator, sizeof(TrieNode) + chunk_size, pmin, pmax);
+}
+
 Error trie_put(Trie* trie, const char* s, void* v) {
     if (trie == NULL || s == NULL || v == NULL || s[0] == '\0') {
         return ERROR("trie == NULL or s == NULL or v == NULL or s with zero length", ECODE(TREELIB, TRIE, ARGV));
@@ -67,6 +110,8 @@ Error trie_put(Trie* trie, const char* s, void* v) {
         n = r.result.data.to_ptr;
 
         n->ls = n->gt = NULL;
+
+        trie->root = n;
 
         return svput(s, n, v, trie->fcopy, &trie->allocator);
     }
@@ -127,35 +172,13 @@ Error trie_get(Trie* trie, const char* s, void* v) {
         return ERROR("trie == NULL or s == NULl or v == NULL or s with zero length", ECODE(TREELIB, TRIE, ARGV));
     }
 
-    TrieNode* n = trie->root;
-
-    if (n == NULL) {
+    if (trie->root == NULL) {
         return ERROR("trie is empty", ECODE(TREELIB, TRIE, EMPTY));
     }
 
-    while (s[0] != '\0' && n != NULL) {
-        if (n->c == s[0]) {
-            n = n->eq;
-        } else if (n->c > s[0]) {
-            n = n->ls;
-        } else {
-            n = n->gt;
-        }
+    Result r = nfind(trie, s, v);
 
-        ++s;
-    }
-
-    if (n == NULL) {
-        return ERROR("data not found for trie", ECODE(TREELIB, TRIE, DNF));
-    }
-
-    if (!n->is_term) {
-        return ERROR("data not found for trie", ECODE(TREELIB, TRIE, DNF));
-    }
-
-    trie->fcopy(v, n->d);
-    
-    return ERROR(NULL, 0);
+    return r.has_value ? ERROR(NULL, 0) : r.result.error;
 }
 
 Error trie_del(Trie* trie, const char* s, void* v) {
@@ -163,34 +186,15 @@ Error trie_del(Trie* trie, const char* s, void* v) {
         return ERROR("trie == NULL or s == NULl or v == NULL or s with zero length", ECODE(TREELIB, TRIE, ARGV));
     }
 
-    TrieNode* n = trie->root;
+    Result r = nfind(trie, s, v);
 
-    if (n == NULL) {
-        return ERROR("trie is empty", ECODE(TREELIB, TRIE, EMPTY));
+    if (!r.has_value) {
+        return r.result.error;
     }
 
-    while (s[0] != '\0' && n != NULL) {
-        if (n->c == s[0]) {
-            n = n->eq;
-        } else if (n->c > s[0]) {
-            n = n->ls;
-        } else {
-            n = n->gt;
-        }
-
-        ++s;
-    }
-
-    if (n == NULL) {
-        return ERROR("data not found for trie", ECODE(TREELIB, TRIE, DNF));
-    }
-
-    if (!n->is_term) {
-        return ERROR("data not found for trie", ECODE(TREELIB, TRIE, DNF));
-    }
-
+    TrieNode* n = r.result.data.to_ptr;
+    
     n->is_term = false;
-    trie->fcopy(v, n->d);
 
     return ERROR(NULL, 0);
 }
